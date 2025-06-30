@@ -100,13 +100,30 @@ public class Main {
     }
 
     private static boolean isValidLine(String line) {
-        if (line == null || line.isEmpty()) return false;
-
-        int quoteCount = 0;
-        for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == '"') quoteCount++;
+        if (line == null || line.trim().isEmpty()) {
+            return false;
         }
-        return quoteCount % 2 == 0;
+
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+
+            if (c == '"' && (i == 0 || line.charAt(i-1) != '\\')) {
+                inQuotes = !inQuotes;
+            }
+        }
+
+        if (inQuotes) {
+            return false;
+        }
+
+        String unquoted = line.replace("\"\"", "");
+        long quoteCount = unquoted.chars().filter(c -> c == '"').count();
+        if (quoteCount > 0 && quoteCount % 2 != 0) {
+            return false;
+        }
+
+        return line.contains(";");
     }
 
     private static String[] parseColumns(String line) {
