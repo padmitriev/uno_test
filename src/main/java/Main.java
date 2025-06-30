@@ -4,22 +4,16 @@ import java.util.*;
 import java.util.stream.*;
 
 public class Main {
-
-    public static final String localPath = "src/main/resources/data/lng-big.csv";
-
     public static void main(String[] args) {
 
-//        if (args.length == 0) {
-//            System.err.println("Usage: java -jar uno_groups-1.0.jar <input_file>");
-//            return;
-//        }
-
-
+        if (args.length == 0) {
+            System.err.println("Usage: java -jar uno_groups-1.0.jar <input_file>");
+            return;
+        }
 
         long startTime = System.currentTimeMillis();
 
-//        String inputFile = args[0];
-        String inputFile = localPath;
+        String inputFile = args[0];
         Path outputFile = Path.of("groups.txt");
 
         try {
@@ -106,30 +100,13 @@ public class Main {
     }
 
     private static boolean isValidLine(String line) {
-        if (line == null || line.trim().isEmpty()) {
-            return false;
-        }
+        if (line == null || line.isEmpty()) return false;
 
-        boolean inQuotes = false;
+        int quoteCount = 0;
         for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-
-            if (c == '"' && (i == 0 || line.charAt(i-1) != '\\')) {
-                inQuotes = !inQuotes;
-            }
+            if (line.charAt(i) == '"') quoteCount++;
         }
-
-        if (inQuotes) {
-            return false;
-        }
-
-        String unquoted = line.replace("\"\"", "");
-        long quoteCount = unquoted.chars().filter(c -> c == '"').count();
-        if (quoteCount > 0 && quoteCount % 2 != 0) {
-            return false;
-        }
-
-        return line.contains(";");
+        return quoteCount % 2 == 0;
     }
 
     private static String[] parseColumns(String line) {
